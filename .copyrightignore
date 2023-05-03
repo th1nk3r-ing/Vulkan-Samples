@@ -9,7 +9,6 @@
 .github
 .jar
 doxyfile
-download_vvl.gradle
 build.gradle.in
 app.build.gradle.in
 settings.gradle.in

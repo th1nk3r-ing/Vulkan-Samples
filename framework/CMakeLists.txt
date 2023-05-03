@@ -432,7 +432,7 @@ set(PROJECT_FILES
     ${STATS_FILES}
     ${GRAPHING_FILES})
 
-# No need for explicit casts from vk::HandleType to VkHandleType on ANDROID
+# No need for explict casts from vk::HandleType to VkHandleType on ANDROID
 if(ANDROID)
     add_definitions(-DVULKAN_HPP_TYPESAFE_CONVERSION=1)
 endif()
@@ -534,9 +534,7 @@ endif()
 
 # Link platform specific libraries
 if(ANDROID)
-    # Import game-activity static lib inside the game-activity_static prefab module.
-    find_package(game-activity REQUIRED CONFIG)
-    target_link_libraries(${PROJECT_NAME} PUBLIC log android game-activity::game-activity_static)
+    target_link_libraries(${PROJECT_NAME} PUBLIC log android native_app_glue)
 else()
     if (DIRECT_TO_DISPLAY)
         target_link_libraries(${PROJECT_NAME} PRIVATE dl)
