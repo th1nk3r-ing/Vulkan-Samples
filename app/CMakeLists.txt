@@ -16,7 +16,7 @@
 #
 
 cmake_minimum_required(VERSION 3.16)
-include(android_package)
+#include(android_package)
 
 # create sample app project
 project(vulkan_samples LANGUAGES C CXX)
@@ -54,19 +54,19 @@ if(ANDROID)
     endif()
     
     # Add packaging project only if not using CMake's toolchain
-    if(CMAKE_SYSTEM_VERSION GREATER 1)
-        add_android_package_project(
-            NAME ${PROJECT_NAME}_package
-            DEPENDS ${PROJECT_NAME}
-            ASSET_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../assets
-            JAVA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/java
-            RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/res
-            MANIFEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/android/AndroidManifest.xml)
-    endif()
+	#if(CMAKE_SYSTEM_VERSION GREATER 1)
+	#   add_android_package_project(
+	#       NAME ${PROJECT_NAME}_package
+	#       DEPENDS ${PROJECT_NAME}
+	#       ASSET_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../assets
+	#       JAVA_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/java
+	#       RES_DIR ${CMAKE_CURRENT_SOURCE_DIR}/android/res
+	#       MANIFEST_FILE ${CMAKE_CURRENT_SOURCE_DIR}/android/AndroidManifest.xml)
+    #endif()
 
     # Sync assets and shaders
-    android_sync_folder(PATH ${CMAKE_CURRENT_SOURCE_DIR}/../assets)
-    android_sync_folder(PATH ${CMAKE_CURRENT_SOURCE_DIR}/../shaders)
+	#android_sync_folder(PATH ${CMAKE_CURRENT_SOURCE_DIR}/../assets)
+	#android_sync_folder(PATH ${CMAKE_CURRENT_SOURCE_DIR}/../shaders)
 endif()
 
 # Create MSVC project
