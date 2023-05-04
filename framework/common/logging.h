@@ -34,3 +34,15 @@
 #define LOGW(...) spdlog::warn(__VA_ARGS__);
 #define LOGE(...) spdlog::error("[{}:{}] {}", __FILENAME__, __LINE__, fmt::format(__VA_ARGS__));
 #define LOGD(...) spdlog::debug(__VA_ARGS__);
+
+#if defined(__ANDROID__)
+    #include <android/log.h>
+
+    #define LOG_TAG "th1nk3rNative"
+
+    #define ALOGV(...) __android_log_print(ANDROID_LOG_VERBOSE, LOG_TAG, __VA_ARGS__)
+    #define ALOGD(...) __android_log_print(ANDROID_LOG_DEBUG ,  LOG_TAG, __VA_ARGS__)
+    #define ALOGI(...) __android_log_print(ANDROID_LOG_INFO  ,  LOG_TAG, __VA_ARGS__)
+    #define ALOGW(...) __android_log_print(ANDROID_LOG_WARN  ,  LOG_TAG, __VA_ARGS__)
+    #define ALOGE(...) __android_log_print(ANDROID_LOG_ERROR, LOG_TAG, __VA_ARGS__)
+#endif

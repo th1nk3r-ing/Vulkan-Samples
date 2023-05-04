@@ -884,5 +884,6 @@ bool ComputeNBody::resize(const uint32_t width, const uint32_t height)
 
 std::unique_ptr<vkb::Application> create_compute_nbody()
 {
+	ALOGE("[%s %d] think3r ---->", __func__, __LINE__);
 	return std::make_unique<ComputeNBody>();
 }
