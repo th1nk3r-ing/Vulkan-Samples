@@ -21,6 +21,8 @@
 
 #if defined(VK_USE_PLATFORM_ANDROID_KHR)
 #	include "platform/android/android_platform.h"
+
+// 其对应于 `NativeSampleActivity.java`
 void android_main(android_app *state)
 {
 	vkb::AndroidPlatform platform{state};

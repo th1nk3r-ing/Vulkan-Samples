@@ -25,7 +25,7 @@ namespace vkb
 {
 /**
  * @brief Process android lifecycle events
- * 
+ *
  * @param app Android app context
  * @return true Events processed
  * @return false Program should close
@@ -61,6 +61,7 @@ class AndroidPlatform : public Platform
 
 	virtual ~AndroidPlatform() = default;
 
+	// override 关键字 : 明确表示派生类的这个虚函数是重写基类的，如果派生类与基类虚函数的签名不一致, 编译器报错
 	virtual ExitCode initialize(const std::vector<Plugin *> &plugins) override;
 
 	virtual void terminate(ExitCode code) override;

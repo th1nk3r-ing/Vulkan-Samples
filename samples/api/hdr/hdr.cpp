@@ -927,6 +927,8 @@ void HDR::render(float delta_time)
 	}
 }
 
+bool g_testValue = true;
+
 void HDR::on_update_ui_overlay(vkb::Drawer &drawer)
 {
 	if (drawer.header("Settings"))
@@ -947,6 +949,9 @@ void HDR::on_update_ui_overlay(vkb::Drawer &drawer)
 		if (drawer.checkbox("Skybox", &display_skybox))
 		{
 			build_command_buffers();
+		}
+		if (drawer.checkbox("think3rTest", &g_testValue)) {
+			ALOGI("[%s %d]  think3rTest is change value:[%d]", __func__, __LINE__, g_testValue);
 		}
 	}
 }

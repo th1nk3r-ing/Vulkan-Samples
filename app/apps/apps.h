@@ -29,7 +29,7 @@
  *
  *	Vulkan Samples currently has two types of apps, Samples and Tests. These apps work from the same interface AppInfo.
  *	Samples and Tests are categorised into namespaces samples and tests respectively. Each name space has a method to retrieve
- *  the AppInfo interface version of the app (tests::get_apps, samples::get_apps). 
+ *  the AppInfo interface version of the app (tests::get_apps, samples::get_apps).
  *
  */
 
@@ -48,8 +48,8 @@ class AppInfo
 	    id(id), create(create)
 	{}
 
-	std::string id;
-	CreateFunc  create;
+	std::string id;			// id 用于标识当前的 example 名字
+	CreateFunc  create;		// 创建对应实例的函数
 };
 
 /*
@@ -84,22 +84,22 @@ class TestInfo : public AppInfo
 
 /**
  * @brief Get a specific app
- * 
+ *
  * @param id ID of a specific app
- * @return const std::vector<AppInfo *> 
+ * @return const std::vector<AppInfo *>
  */
 AppInfo *get_app(const std::string &id);
 
 /**
  * @brief Get all apps
- * 
+ *
  * @return const std::vector<AppInfo *> A list of all apps
  */
 std::vector<AppInfo *> get_apps();
 
 /**
- * @brief Get all samples
- * 
+ * @brief Get all samples		获取到所有的 sample
+ *
  * @param categories If not empty the lists will include samples that match on of the categories requested
  * @param tags If not empty the lists will include samples that match on of the tags requested
  * @return std::vector<AppInfo *> A list of samples
@@ -110,7 +110,7 @@ SampleInfo *get_sample(const std::string &id);
 
 /**
  * @brief Get all tests
- * 
+ *
  * @return std::vector<AppInfo *> A list of Tests
  */
 std::vector<AppInfo *> get_tests();

@@ -57,7 +57,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL debug_callback(VkDebugReportFlagsEXT flags
  * @return true if all required extensions are available
  * @return false otherwise
  */
-bool HelloTriangle::validate_extensions(const std::vector<const char *>          &required,
+bool HelloTriangle::__validate_extensions(const std::vector<const char *>          &required,
                                         const std::vector<VkExtensionProperties> &available)
 {
 	for (auto extension : required)
@@ -89,7 +89,7 @@ bool HelloTriangle::validate_extensions(const std::vector<const char *>         
  * @return true if all required extensions are available
  * @return false otherwise
  */
-bool HelloTriangle::validate_layers(const std::vector<const char *>      &required,
+bool HelloTriangle::__validate_layers(const std::vector<const char *>      &required,
                                     const std::vector<VkLayerProperties> &available)
 {
 	for (auto extension : required)
@@ -119,7 +119,7 @@ bool HelloTriangle::validate_layers(const std::vector<const char *>      &requir
  * @param ext A string containing the shader stage name.
  * @return VkShaderStageFlagBits The shader stage mapping from the given string, VK_SHADER_STAGE_VERTEX_BIT otherwise.
  */
-VkShaderStageFlagBits HelloTriangle::find_shader_stage(const std::string &ext)
+VkShaderStageFlagBits HelloTriangle::___find_shader_stage(const std::string &ext)
 {
 	if (ext == "vert")
 	{
@@ -156,7 +156,7 @@ VkShaderStageFlagBits HelloTriangle::find_shader_stage(const std::string &ext)
  * @param required_instance_extensions The required Vulkan instance extensions.
  * @param required_validation_layers The required Vulkan validation layers
  */
-void HelloTriangle::init_instance(Context                         &context,
+void HelloTriangle::_init_instance(Context                         &context,
                                   const std::vector<const char *> &required_instance_extensions,
                                   const std::vector<const char *> &required_validation_layers)
 {
@@ -202,7 +202,7 @@ void HelloTriangle::init_instance(Context                         &context,
 #	pragma error Platform not supported
 #endif
 
-	if (!validate_extensions(active_instance_extensions, instance_extensions))
+	if (!__validate_extensions(active_instance_extensions, instance_extensions))
 	{
 		throw std::runtime_error("Required instance extensions are missing.");
 	}
@@ -221,7 +221,7 @@ void HelloTriangle::init_instance(Context                         &context,
 	requested_validation_layers.insert(requested_validation_layers.end(), optimal_validation_layers.begin(), optimal_validation_layers.end());
 #endif
 
-	if (validate_layers(requested_validation_layers, supported_validation_layers))
+	if (__validate_layers(requested_validation_layers, supported_validation_layers))
 	{
 		LOGI("Enabled Validation Layers:")
 		for (const auto &layer : requested_validation_layers)
@@ -274,7 +274,7 @@ void HelloTriangle::init_instance(Context                         &context,
  * @param context A Vulkan context with an instance already set up.
  * @param required_device_extensions The required Vulkan device extensions.
  */
-void HelloTriangle::init_device(Context                         &context,
+void HelloTriangle::_init_device(Context                         &context,
                                 const std::vector<const char *> &required_device_extensions)
 {
 	LOGI("Initializing vulkan device.");
@@ -329,7 +329,7 @@ void HelloTriangle::init_device(Context                         &context,
 	std::vector<VkExtensionProperties> device_extensions(device_extension_count);
 	VK_CHECK(vkEnumerateDeviceExtensionProperties(context.gpu, nullptr, &device_extension_count, device_extensions.data()));
 
-	if (!validate_extensions(required_device_extensions, device_extensions))
+	if (!__validate_extensions(required_device_extensions, device_extensions))
 	{
 		throw std::runtime_error("Required device extensions are missing, will try without.");
 	}
@@ -359,7 +359,7 @@ void HelloTriangle::init_device(Context                         &context,
  * @param context A newly created Vulkan context.
  * @param per_frame The data of a frame.
  */
-void HelloTriangle::init_per_frame(Context &context, PerFrame &per_frame)
+void HelloTriangle::__init_per_frame(Context &context, PerFrame &per_frame)
 {
 	VkFenceCreateInfo info{VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
 	info.flags = VK_FENCE_CREATE_SIGNALED_BIT;
@@ -430,7 +430,7 @@ void HelloTriangle::teardown_per_frame(Context &context, PerFrame &per_frame)
  * @brief Initializes the Vulkan swapchain.
  * @param context A Vulkan context with a physical device already set up.
  */
-void HelloTriangle::init_swapchain(Context &context)
+void HelloTriangle::_init_swapchain(Context &context)
 {
 	VkSurfaceCapabilitiesKHR surface_properties;
 	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context.gpu, context.surface, &surface_properties));
@@ -565,7 +565,7 @@ void HelloTriangle::init_swapchain(Context &context)
 
 	for (size_t i = 0; i < image_count; i++)
 	{
-		init_per_frame(context, context.per_frame[i]);
+		__init_per_frame(context, context.per_frame[i]);
 	}
 
 	for (size_t i = 0; i < image_count; i++)
@@ -594,7 +594,7 @@ void HelloTriangle::init_swapchain(Context &context)
  * @brief Initializes the Vulkan render pass.
  * @param context A Vulkan context with a device already set up.
  */
-void HelloTriangle::init_render_pass(Context &context)
+void HelloTriangle::_init_render_pass(Context &context)
 {
 	VkAttachmentDescription attachment = {0};
 	// Backbuffer format.
@@ -661,7 +661,7 @@ void HelloTriangle::init_render_pass(Context &context)
  * @param path The path for the shader (relative to the assets directory).
  * @returns A VkShaderModule handle. Aborts execution if shader creation fails.
  */
-VkShaderModule HelloTriangle::load_shader_module(Context &context, const char *path)
+VkShaderModule HelloTriangle::__load_shader_module(Context &context, const char *path)
 {
 	vkb::GLSLCompiler glsl_compiler;
 
@@ -676,7 +676,7 @@ VkShaderModule HelloTriangle::load_shader_module(Context &context, const char *p
 	std::string           info_log;
 
 	// Compile the GLSL source
-	if (!glsl_compiler.compile_to_spirv(find_shader_stage(file_ext), buffer, "main", {}, spirv, info_log))
+	if (!glsl_compiler.compile_to_spirv(___find_shader_stage(file_ext), buffer, "main", {}, spirv, info_log))
 	{
 		LOGE("Failed to compile shader, Error: {}", info_log.c_str());
 		return VK_NULL_HANDLE;
@@ -696,7 +696,7 @@ VkShaderModule HelloTriangle::load_shader_module(Context &context, const char *p
  * @brief Initializes the Vulkan pipeline.
  * @param context A Vulkan context with a device and a render pass already set up.
  */
-void HelloTriangle::init_pipeline(Context &context)
+void HelloTriangle::_init_pipeline(Context &context)
 {
 	// Create a blank pipeline layout.
 	// We are not binding any resources to the pipeline in this first sample.
@@ -748,13 +748,13 @@ void HelloTriangle::init_pipeline(Context &context)
 	// Vertex stage of the pipeline
 	shader_stages[0].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shader_stages[0].stage  = VK_SHADER_STAGE_VERTEX_BIT;
-	shader_stages[0].module = load_shader_module(context, "triangle.vert");
+	shader_stages[0].module = __load_shader_module(context, "triangle.vert");
 	shader_stages[0].pName  = "main";
 
 	// Fragment stage of the pipeline
 	shader_stages[1].sType  = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 	shader_stages[1].stage  = VK_SHADER_STAGE_FRAGMENT_BIT;
-	shader_stages[1].module = load_shader_module(context, "triangle.frag");
+	shader_stages[1].module = __load_shader_module(context, "triangle.frag");
 	shader_stages[1].pName  = "main";
 
 	VkGraphicsPipelineCreateInfo pipe{VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO};
@@ -786,7 +786,7 @@ void HelloTriangle::init_pipeline(Context &context)
  * @param[out] image The swapchain index for the acquired image.
  * @returns Vulkan result code
  */
-VkResult HelloTriangle::acquire_next_image(Context &context, uint32_t *image)
+VkResult HelloTriangle::_acquire_next_image(Context &context, uint32_t *image)
 {
 	VkSemaphore acquire_semaphore;
 	if (context.recycled_semaphores.empty())
@@ -845,7 +845,7 @@ VkResult HelloTriangle::acquire_next_image(Context &context, uint32_t *image)
  * @param context A Vulkan context set up for rendering.
  * @param swapchain_index The swapchain index for the image being rendered.
  */
-void HelloTriangle::render_triangle(Context &context, uint32_t swapchain_index)
+void HelloTriangle::_render_triangle(Context &context, uint32_t swapchain_index)
 {
 	// Render to this framebuffer.
 	VkFramebuffer framebuffer = context.swapchain_framebuffers[swapchain_index];
@@ -928,7 +928,7 @@ void HelloTriangle::render_triangle(Context &context, uint32_t swapchain_index)
  * @param index The swapchain index previously obtained from @ref acquire_next_image.
  * @returns Vulkan result code
  */
-VkResult HelloTriangle::present_image(Context &context, uint32_t index)
+VkResult HelloTriangle::_present_image(Context &context, uint32_t index)
 {
 	VkPresentInfoKHR present{VK_STRUCTURE_TYPE_PRESENT_INFO_KHR};
 	present.swapchainCount     = 1;
@@ -944,7 +944,7 @@ VkResult HelloTriangle::present_image(Context &context, uint32_t index)
  * @brief Initializes the Vulkan framebuffers.
  * @param context A Vulkan context with the render pass already set up.
  */
-void HelloTriangle::init_framebuffers(Context &context)
+void HelloTriangle::_init_framebuffers(Context &context)
 {
 	VkDevice device = context.device;
 
@@ -1051,7 +1051,7 @@ void HelloTriangle::teardown(Context &context)
 		context.debug_callback = VK_NULL_HANDLE;
 	}
 
-	vk_instance.reset();
+	m_vk_instance.reset();
 }
 
 HelloTriangle::HelloTriangle()
@@ -1060,33 +1060,33 @@ HelloTriangle::HelloTriangle()
 
 HelloTriangle::~HelloTriangle()
 {
-	teardown(context);
+	teardown(m_context);
 }
 
 bool HelloTriangle::prepare(vkb::Platform &platform)
 {
-	init_instance(context, {VK_KHR_SURFACE_EXTENSION_NAME}, {});
+	_init_instance(m_context, {VK_KHR_SURFACE_EXTENSION_NAME}, {});
 
-	vk_instance = std::make_unique<vkb::Instance>(context.instance);
+	m_vk_instance = std::make_unique<vkb::Instance>(m_context.instance);
 
-	context.surface                     = platform.get_window().create_surface(*vk_instance);
+	m_context.surface                     = platform.get_window().create_surface(*m_vk_instance);
 	auto &extent                        = platform.get_window().get_extent();
-	context.swapchain_dimensions.width  = extent.width;
-	context.swapchain_dimensions.height = extent.height;
+	m_context.swapchain_dimensions.width  = extent.width;
+	m_context.swapchain_dimensions.height = extent.height;
 
-	if (!context.surface)
+	if (!m_context.surface)
 	{
 		throw std::runtime_error("Failed to create window surface.");
 	}
 
-	init_device(context, {"VK_KHR_swapchain"});
+	_init_device(m_context, {"VK_KHR_swapchain"});
 
-	init_swapchain(context);
+	_init_swapchain(m_context);
 
 	// Create the necessary objects for rendering.
-	init_render_pass(context);
-	init_pipeline(context);
-	init_framebuffers(context);
+	_init_render_pass(m_context);
+	_init_pipeline(m_context);
+	_init_framebuffers(m_context);
 
 	return true;
 }
@@ -1094,29 +1094,28 @@ bool HelloTriangle::prepare(vkb::Platform &platform)
 void HelloTriangle::update(float delta_time)
 {
 	uint32_t index;
-
-	auto res = acquire_next_image(context, &index);
+	auto res = _acquire_next_image(m_context, &index);
 
 	// Handle outdated error in acquire.
 	if (res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
-		resize(context.swapchain_dimensions.width, context.swapchain_dimensions.height);
-		res = acquire_next_image(context, &index);
+		resize(m_context.swapchain_dimensions.width, m_context.swapchain_dimensions.height);
+		res = _acquire_next_image(m_context, &index);
 	}
 
 	if (res != VK_SUCCESS)
 	{
-		vkQueueWaitIdle(context.queue);
+		vkQueueWaitIdle(m_context.queue);
 		return;
 	}
 
-	render_triangle(context, index);
-	res = present_image(context, index);
+	_render_triangle(m_context, index);
+	res = _present_image(m_context, index);
 
 	// Handle Outdated error in present.
 	if (res == VK_SUBOPTIMAL_KHR || res == VK_ERROR_OUT_OF_DATE_KHR)
 	{
-		resize(context.swapchain_dimensions.width, context.swapchain_dimensions.height);
+		resize(m_context.swapchain_dimensions.width, m_context.swapchain_dimensions.height);
 	}
 	else if (res != VK_SUCCESS)
 	{
@@ -1126,29 +1125,30 @@ void HelloTriangle::update(float delta_time)
 
 bool HelloTriangle::resize(const uint32_t, const uint32_t)
 {
-	if (context.device == VK_NULL_HANDLE)
+	if (m_context.device == VK_NULL_HANDLE)
 	{
 		return false;
 	}
 
 	VkSurfaceCapabilitiesKHR surface_properties;
-	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(context.gpu, context.surface, &surface_properties));
+	VK_CHECK(vkGetPhysicalDeviceSurfaceCapabilitiesKHR(m_context.gpu, m_context.surface, &surface_properties));
 
 	// Only rebuild the swapchain if the dimensions have changed
-	if (surface_properties.currentExtent.width == context.swapchain_dimensions.width &&
-	    surface_properties.currentExtent.height == context.swapchain_dimensions.height)
+	if (surface_properties.currentExtent.width == m_context.swapchain_dimensions.width &&
+	    surface_properties.currentExtent.height == m_context.swapchain_dimensions.height)
 	{
 		return false;
 	}
 
-	vkDeviceWaitIdle(context.device);
-	teardown_framebuffers(context);
+	vkDeviceWaitIdle(m_context.device);
+	teardown_framebuffers(m_context);
 
-	init_swapchain(context);
-	init_framebuffers(context);
+	_init_swapchain(m_context);
+	_init_framebuffers(m_context);
 	return true;
 }
 
+// 创建对应的示例, 并返回其父类方法以供外部调用
 std::unique_ptr<vkb::Application> create_hello_triangle()
 {
 	return std::make_unique<HelloTriangle>();

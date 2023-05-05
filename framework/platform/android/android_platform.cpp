@@ -37,6 +37,7 @@ VKBP_ENABLE_WARNINGS()
 #include "platform/android/android_window.h"
 #include "platform/input_events.h"
 
+// JNI 函数的封装
 extern "C"
 {
 	JNIEXPORT void JNICALL
@@ -51,12 +52,13 @@ extern "C"
 		env->ReleaseStringUTFChars(temp_dir, temp_dir_cstr);
 	}
 
+	// 获取底层的 sample 列表, 并配置到 java 层用作界面展示
 	JNIEXPORT jobjectArray JNICALL
 	    Java_com_khronos_vulkan_1samples_SampleLauncherActivity_getSamples(JNIEnv *env, jobject thiz)
 	{
 		auto sample_list = apps::get_samples();
 
-		jclass       c             = env->FindClass("com/khronos/vulkan_samples/model/Sample");
+		jclass       c             = env->FindClass("com/khronos/vulkan_samples/model/Sample");	// 对应类 model/Sample.java
 		jmethodID    constructor   = env->GetMethodID(c, "<init>", "(Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;[Ljava/lang/String;)V");
 		jobjectArray j_sample_list = env->NewObjectArray(sample_list.size(), c, 0);
 
@@ -76,12 +78,15 @@ extern "C"
 				env->SetObjectArrayElement(j_tag_list, tag_index, env->NewStringUTF(sample_info->tags[tag_index].c_str()));
 			}
 
+			// 初始化类
 			env->SetObjectArrayElement(j_sample_list, sample_index, env->NewObject(c, constructor, id, category, author, name, desc, j_tag_list));
 		}
 
+		// 返回 Native 层支持的 Sample 列表
 		return j_sample_list;
 	}
 
+	// 当前要运行的是哪个 demo
 	JNIEXPORT void JNICALL
 	    Java_com_khronos_vulkan_1samples_SampleLauncherActivity_sendArgumentsToPlatform(JNIEnv *env, jobject thiz, jobjectArray arg_strings)
 	{
@@ -98,6 +103,7 @@ extern "C"
 			env->ReleaseStringUTFChars(arg_string, arg);
 		}
 
+		// 通过 JNI _sendArgumentsToPlatform 函数配置到全局变量 `arguments` 中
 		vkb::Platform::set_arguments(args);
 	}
 }
@@ -295,7 +301,7 @@ inline TouchAction translate_touch_action(int action)
 	return TouchAction::Unknown;
 }
 
-void on_content_rect_changed(ANativeActivity *activity, const ARect *rect)
+static void on_content_rect_changed(ANativeActivity *activity, const ARect *rect)
 {
 	LOGI("ContentRectChanged: {:p}\n", static_cast<void *>(activity));
 	struct android_app *app = reinterpret_cast<struct android_app *>(activity->instance);
@@ -309,7 +315,7 @@ void on_content_rect_changed(ANativeActivity *activity, const ARect *rect)
 	}
 }
 
-void on_app_cmd(android_app *app, int32_t cmd)
+static void on_app_cmd(android_app *app, int32_t cmd)
 {
 	auto platform = reinterpret_cast<AndroidPlatform *>(app->userData);
 	assert(platform && "Platform is not valid");
@@ -340,7 +346,7 @@ void on_app_cmd(android_app *app, int32_t cmd)
 	}
 }
 
-int32_t on_input_event(android_app *app, AInputEvent *input_event)
+static int32_t on_input_event(android_app *app, AInputEvent *input_event)
 {
 	auto platform = reinterpret_cast<AndroidPlatform *>(app->userData);
 	assert(platform && "Platform is not valid");
@@ -408,6 +414,7 @@ AndroidPlatform::AndroidPlatform(android_app *app) :
 {
 }
 
+// 入口为 `app/main.cpp` 中的 `android_main` 函数
 ExitCode AndroidPlatform::initialize(const std::vector<Plugin *> &plugins)
 {
 	app->onAppCmd                                  = on_app_cmd;
@@ -415,6 +422,8 @@ ExitCode AndroidPlatform::initialize(const std::vector<Plugin *> &plugins)
 	app->activity->callbacks->onContentRectChanged = on_content_rect_changed;
 	app->userData                                  = this;
 
+	// 尽量用 ALOG* 系列, spdlog 在下方会初始化, 不然会 crash
+	ALOGI("think 1");
 	auto code = Platform::initialize(plugins);
 	if (code != ExitCode::Success)
 	{
@@ -422,7 +431,7 @@ ExitCode AndroidPlatform::initialize(const std::vector<Plugin *> &plugins)
 	}
 
 	// Wait until the android window is loaded before allowing the app to continue
-	LOGI("Waiting on window surface to be ready");
+	LOGI("think Waiting on window surface to be ready");
 	do
 	{
 		if (!process_android_events(app))
@@ -438,6 +447,7 @@ ExitCode AndroidPlatform::initialize(const std::vector<Plugin *> &plugins)
 
 void AndroidPlatform::create_window(const Window::Properties &properties)
 {
+	ALOGI("[%s %d] think ", __func__, __LINE__);
 	// Android window uses native window size
 	// Required so that the vulkan sample can create a VkSurface
 	window = std::make_unique<AndroidWindow>(this, app->window, properties);

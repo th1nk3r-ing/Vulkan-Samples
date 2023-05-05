@@ -123,56 +123,48 @@ class HelloTriangle : public vkb::Application
 	HelloTriangle();
 
 	virtual ~HelloTriangle();
-
 	virtual bool prepare(vkb::Platform &platform) override;
-
 	virtual void update(float delta_time) override;
-
 	virtual bool resize(const uint32_t width, const uint32_t height) override;
 
-	bool validate_extensions(const std::vector<const char *> &         required,
-	                         const std::vector<VkExtensionProperties> &available);
+  private:
+	Context m_context;
+	std::unique_ptr<vkb::Instance> m_vk_instance;
 
-	bool validate_layers(const std::vector<const char *> &     required,
-	                     const std::vector<VkLayerProperties> &available);
-
-	VkShaderStageFlagBits find_shader_stage(const std::string &ext);
-
-	void init_instance(Context &                        context,
+	/**
+	 * @brief 被虚函数 prepare 调用
+	 */
+	void _init_instance(Context &                        context,
 	                   const std::vector<const char *> &required_instance_extensions,
 	                   const std::vector<const char *> &required_validation_layers);
-
-	void init_device(Context &                        context,
+	void _init_device(Context &                        context,
 	                 const std::vector<const char *> &required_device_extensions);
+	void _init_swapchain(Context &context);
+	void _init_render_pass(Context &context);
+	void _init_pipeline(Context &context);
+	VkShaderModule __load_shader_module(Context &context, const char *path);
+	VkShaderStageFlagBits ___find_shader_stage(const std::string &ext);
+	void _init_framebuffers(Context &context);
 
-	void init_per_frame(Context &context, PerFrame &per_frame);
+	void __init_per_frame(Context &context, PerFrame &per_frame);
 
+	/**
+	 * @brief 被虚函数 update 调用
+	 */
+	VkResult _acquire_next_image(Context &context, uint32_t *image);
+	void     _render_triangle(Context &context, uint32_t swapchain_index);
+	VkResult _present_image(Context &context, uint32_t index);
+
+
+	bool __validate_extensions(const std::vector<const char *> &         required,
+	                         const std::vector<VkExtensionProperties> &available);
+	bool __validate_layers(const std::vector<const char *> &     required,
+	                     const std::vector<VkLayerProperties> &available);
+
+	// 资源销毁
 	void teardown_per_frame(Context &context, PerFrame &per_frame);
-
-	void init_swapchain(Context &context);
-
-	void init_render_pass(Context &context);
-
-	VkShaderModule load_shader_module(Context &context, const char *path);
-
-	void init_pipeline(Context &context);
-
-	VkResult acquire_next_image(Context &context, uint32_t *image);
-
-	void render_triangle(Context &context, uint32_t swapchain_index);
-
-	VkResult present_image(Context &context, uint32_t index);
-
-	void init_framebuffers(Context &context);
-
 	void teardown_framebuffers(Context &context);
-
 	void teardown(Context &context);
-
-  private:
-	Context context;
-
-	std::unique_ptr<vkb::Instance> vk_instance;
 };
 
 std::unique_ptr<vkb::Application> create_hello_triangle();

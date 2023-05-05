@@ -29,6 +29,7 @@ namespace vkb
 class Window;
 class Platform;
 
+// 每个 Sample 的父类
 class Application
 {
   public:

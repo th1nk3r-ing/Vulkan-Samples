@@ -45,6 +45,8 @@
 			</intent-filter>
 		</activity>
 
+		<!-- demo 的相关代码为 nativeActivity
+			为了充分利用 imGui 的相关触控事件分发? -->
 		<activity android:name="com.khronos.vulkan_samples.NativeSampleActivity"
 			android:configChanges="orientation|keyboardHidden|screenSize"
 			android:screenOrientation="fullSensor">

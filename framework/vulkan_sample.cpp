@@ -80,8 +80,8 @@ RenderPipeline &VulkanSample::get_render_pipeline()
 
 bool VulkanSample::prepare(Platform &platform)
 {
-	if (!Application::prepare(platform))
-	{
+	// 调用父类的 prepare 方法
+	if (!this->Application::prepare(platform)) {
 		return false;
 	}
 
@@ -357,7 +357,7 @@ void VulkanSample::draw(CommandBuffer &command_buffer, RenderTarget &render_targ
 		command_buffer.image_memory_barrier(views[1], memory_barrier);
 	}
 
-	draw_renderpass(command_buffer, render_target);
+	this->draw_renderpass(command_buffer, render_target);
 
 	{
 		ImageMemoryBarrier memory_barrier{};
@@ -375,7 +375,7 @@ void VulkanSample::draw_renderpass(CommandBuffer &command_buffer, RenderTarget &
 {
 	set_viewport_and_scissor(command_buffer, render_target.get_extent());
 
-	render(command_buffer);
+	this->render(command_buffer);
 
 	if (gui)
 	{

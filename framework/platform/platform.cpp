@@ -49,7 +49,9 @@ ExitCode Platform::initialize(const std::vector<Plugin *> &plugins = {})
 {
 	auto sinks = get_platform_sinks();
 
+	// 初始化 spdlog 日志相关
 	auto logger = std::make_shared<spdlog::logger>("logger", sinks.begin(), sinks.end());
+	ALOGI("[%s %d] think", __func__, __LINE__);
 
 #ifdef VKB_DEBUG
 	logger->set_level(spdlog::level::debug);
@@ -60,8 +62,10 @@ ExitCode Platform::initialize(const std::vector<Plugin *> &plugins = {})
 	logger->set_pattern(LOGGER_FORMAT);
 	spdlog::set_default_logger(logger);
 
-	LOGI("Logger initialized");
-
+	for (int i = 0; i < arguments.size(); i++) {
+		ALOGI("[%s %d] think3r idx:[%d], value:[%s]", __func__, __LINE__, i, arguments[i].c_str());
+	}
+	// sample xxxxx(hello_triangle, dynamic_uniform_buffers)
 	parser = std::make_unique<CLI11CommandParser>("vulkan_samples", "\n\tVulkan Samples\n\n\t\tA collection of samples to demonstrate the Vulkan best practice.\n", arguments);
 
 	// Process command line arguments
@@ -103,7 +107,9 @@ ExitCode Platform::initialize(const std::vector<Plugin *> &plugins = {})
 		return ExitCode::Close;
 	}
 
-	create_window(window_properties);
+	ALOGI("[%s %d] think start", __func__, __LINE__);
+	create_window(window_properties);	// 纯虚函数, 最终调用的是子类 override 的函数
+	ALOGI("[%s %d] think end", __func__, __LINE__);
 
 	if (!window)
 	{
@@ -366,7 +372,7 @@ bool Platform::start_app()
 		active_app->finish();
 	}
 
-	active_app = requested_app_info->create();
+	active_app = requested_app_info->create();	// 调用各个 Sample 注册的创建函数, 来进行 new
 
 	active_app->set_name(requested_app_info->id);
 
