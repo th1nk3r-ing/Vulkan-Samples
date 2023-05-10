@@ -17,11 +17,13 @@
 
 #include "hello_triangle.h"
 
+#include "common/error.h"
 #include "common/logging.h"
 #include "common/vk_common.h"
 #include "glsl_compiler.h"
 #include "platform/filesystem.h"
 #include "platform/platform.h"
+#include <string.h>
 
 #if defined(VKB_DEBUG) || defined(VKB_VALIDATION_LAYERS)
 /// @brief A debug callback called from Vulkan validation layers.
@@ -239,6 +241,9 @@ void HelloTriangle::_init_instance(Context                         &context,
 	app.pEngineName      = "Vulkan Samples";
 	app.apiVersion       = VK_MAKE_VERSION(1, 0, 0);
 
+	// TODO : 此处的 extension 代码梳理
+    ALOGI("[%s %d] think3r extension:[%lu %s %s]", __func__, __LINE__, active_instance_extensions.size(), active_instance_extensions[0], active_instance_extensions[1]);
+    ALOGI("[%s %d] think3r layers:[%lu]", __func__, __LINE__, requested_validation_layers.size());
 	VkInstanceCreateInfo instance_info{VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO};
 	instance_info.pApplicationInfo        = &app;
 	instance_info.enabledExtensionCount   = vkb::to_u32(active_instance_extensions.size());
@@ -287,55 +292,69 @@ void HelloTriangle::_init_device(Context                         &context,
 		throw std::runtime_error("No physical device found.");
 	}
 
+	// 分配 vector 数组并存储所有 VkPhysicalDevice 句柄
 	std::vector<VkPhysicalDevice> gpus(gpu_count);
 	VK_CHECK(vkEnumeratePhysicalDevices(context.instance, &gpu_count, gpus.data()));
 
-	for (size_t i = 0; i < gpu_count && (context.graphics_queue_index < 0); i++)
-	{
+	// 检查设备功能并挑选 (可直接认为所有 GPU 都合适)
+	for (size_t i = 0; i < gpu_count && (context.graphics_queue_index < 0); i++) {
 		context.gpu = gpus[i];
 
+		// 获取队列簇的个数
 		uint32_t queue_family_count;
 		vkGetPhysicalDeviceQueueFamilyProperties(context.gpu, &queue_family_count, nullptr);
-
-		if (queue_family_count < 1)
-		{
+		if (queue_family_count < 1) {
 			throw std::runtime_error("No queue family found.");
+		} else {
+			ALOGI("[%s %d] think3r gpuIdx:[%zu], queueFamilyCnt:[%d]", __func__, __LINE__, i, queue_family_count);
 		}
 
+		// 获取队列簇
 		std::vector<VkQueueFamilyProperties> queue_family_properties(queue_family_count);
 		vkGetPhysicalDeviceQueueFamilyProperties(context.gpu, &queue_family_count, queue_family_properties.data());
-
-		for (uint32_t i = 0; i < queue_family_count; i++)
-		{
+		for (uint32_t i = 0; i < queue_family_count; i++) {
+			// 检查物理设备是否具有表现能力
 			VkBool32 supports_present;
-			vkGetPhysicalDeviceSurfaceSupportKHR(context.gpu, i, context.surface, &supports_present);
+			VK_CHECK(vkGetPhysicalDeviceSurfaceSupportKHR(context.gpu, i, context.surface, &supports_present));
 
 			// Find a queue family which supports graphics and presentation.
-			if ((queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && supports_present)
-			{
+			if ((queue_family_properties[i].queueFlags & VK_QUEUE_GRAPHICS_BIT) && supports_present) {
 				context.graphics_queue_index = i;
 				break;
 			}
 		}
 	}
 
-	if (context.graphics_queue_index < 0)
-	{
+	if (context.graphics_queue_index < 0) {
 		LOGE("Did not find suitable queue which supports graphics, compute and presentation.");
+	} else {
+		ALOGI("[%s %d] think3r graphicsQueueIdx:[%d]", __func__, __LINE__, context.graphics_queue_index);
 	}
 
 	uint32_t device_extension_count;
 	VK_CHECK(vkEnumerateDeviceExtensionProperties(context.gpu, nullptr, &device_extension_count, nullptr));
 	std::vector<VkExtensionProperties> device_extensions(device_extension_count);
 	VK_CHECK(vkEnumerateDeviceExtensionProperties(context.gpu, nullptr, &device_extension_count, device_extensions.data()));
-
-	if (!__validate_extensions(required_device_extensions, device_extensions))
-	{
+	if (!__validate_extensions(required_device_extensions, device_extensions)){
 		throw std::runtime_error("Required device extensions are missing, will try without.");
 	}
+#if 0
+	bool isSupportSwapchain = false;
+	for (uint32_t idx = 0; idx < device_extensions.size(); idx++) {
+		if (strstr(VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[idx].extensionName)) {
+			isSupportSwapchain = true;
+			ALOGI("[%s %d] think3r idx:[%d] support SwapChain:[%s %s]",
+			      __func__, __LINE__, idx, VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[idx].extensionName);
+			break;
+		}
+		// else {
+		// 	ALOGE("[%s %d] error! think3r idx:[%d] support SwapChain:[%s %s]",
+		// 	      __func__, __LINE__, idx, VK_KHR_SWAPCHAIN_EXTENSION_NAME, device_extensions[idx].extensionName);
+		// }
+	}
+#endif
 
 	float queue_priority = 1.0f;
-
 	// Create one queue
 	VkDeviceQueueCreateInfo queue_info{VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO};
 	queue_info.queueFamilyIndex = context.graphics_queue_index;
@@ -454,16 +473,17 @@ void HelloTriangle::_init_swapchain(Context &context)
 		}
 	}
 
+	ALOGI("[%s %d] think3r VkSurfaceFormatKHR:[%#x %#x]", __func__, __LINE__, format.format, format.colorSpace);
+
 	VkExtent2D swapchain_size;
-	if (surface_properties.currentExtent.width == 0xFFFFFFFF)
-	{
+	if (surface_properties.currentExtent.width == 0xFFFFFFFF) {
 		swapchain_size.width  = context.swapchain_dimensions.width;
 		swapchain_size.height = context.swapchain_dimensions.height;
-	}
-	else
-	{
+	} else {
 		swapchain_size = surface_properties.currentExtent;
 	}
+
+	ALOGI("[%s %d] think3r swapChainSize:[%d x %d  %x]", __func__, __LINE__, swapchain_size.width, swapchain_size.height, surface_properties.currentExtent.width);
 
 	// FIFO must be supported by all implementations.
 	VkPresentModeKHR swapchain_present_mode = VK_PRESENT_MODE_FIFO_KHR;
@@ -509,6 +529,9 @@ void HelloTriangle::_init_swapchain(Context &context)
 	{
 		composite = VK_COMPOSITE_ALPHA_POST_MULTIPLIED_BIT_KHR;
 	}
+
+	ALOGI("[%s %d] think3r composite:[%#x], presentMode:[%#x], preTransform:[%#x]",
+			__func__, __LINE__, composite, swapchain_present_mode, pre_transform);
 
 	VkSwapchainCreateInfoKHR info{VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR};
 	info.surface            = context.surface;
@@ -1148,7 +1171,11 @@ bool HelloTriangle::resize(const uint32_t, const uint32_t)
 	return true;
 }
 
-// 创建对应的示例, 并返回其父类方法以供外部调用
+/**
+ * @brief Create a HelloTriangle class object
+ * 			创建对应的示例, 并返回其父类方法以供外部调用
+ * @return std::unique_ptr<vkb::Application>
+ */
 std::unique_ptr<vkb::Application> create_hello_triangle()
 {
 	return std::make_unique<HelloTriangle>();
